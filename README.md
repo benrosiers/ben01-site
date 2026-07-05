@@ -62,6 +62,16 @@ Cherche et remplace dans `index.html` :
 
 ---
 
+## Liens officiels
+
+| Lien | URL |
+|------|-----|
+| HyperFollow / pre-save | https://distrokid.com/hyperfollow/ben01/nons-cheap |
+| GitHub Pages | https://benrosiers.github.io/ben01-site/ |
+| Site officiel (à venir) | https://ben01.ca |
+
+---
+
 ## Déploiement GitHub Pages
 
 ```bash
