@@ -455,7 +455,8 @@ section {
   background: rgba(217, 30, 50, 0.05);
 }
 
-.streaming-link.avenir {
+.streaming-link.avenir,
+.social-link.avenir {
   cursor: default;
   opacity: 0.38;
   pointer-events: none;
