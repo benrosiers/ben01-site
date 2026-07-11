@@ -67,6 +67,7 @@ Cherche et remplace dans `index.html` :
 | Lien | URL |
 |------|-----|
 | HyperFollow / pre-save | https://distrokid.com/hyperfollow/ben01/nons-cheap |
+| Bandcamp | https://ben01.bandcamp.com/album/n-ons-cheap |
 | GitHub Pages | https://benrosiers.github.io/ben01-site/ |
 | Site officiel (à venir) | https://ben01.ca |
 
