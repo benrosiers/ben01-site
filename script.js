@@ -50,6 +50,31 @@
   updateHeader();
 })();
 
+/* ---- Suivi des clics de conversion (pré-save / Bandcamp) ----
+   Envoie un événement personnalisé à chaque pixel de suivi réellement présent sur la page.
+   Meta Pixel est actif (voir index.html <head>). Google Ads/GA4 (gtag) et TikTok Pixel (ttq)
+   ne sont pas encore configurés — voir README "Pixels de suivi" — ces appels ne font rien
+   tant que ces scripts ne sont pas ajoutés, ils ne cassent rien en attendant. */
+(function () {
+  function trackConversion(eventName) {
+    if (typeof window.fbq === 'function') {
+      window.fbq('trackCustom', eventName);
+    }
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName);
+    }
+    if (typeof window.ttq !== 'undefined' && typeof window.ttq.track === 'function') {
+      window.ttq.track(eventName);
+    }
+  }
+
+  document.querySelectorAll('[data-pixel-event]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      trackConversion(link.getAttribute('data-pixel-event'));
+    });
+  });
+})();
+
 /* ---- Navigation: ferme les ancres proprement (compense la nav fixe) ---- */
 (function () {
   var navHeight = 60; // hauteur approximative de la nav

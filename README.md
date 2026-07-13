@@ -73,6 +73,20 @@ Cherche et remplace dans `index.html` :
 
 ---
 
+## Pixels de suivi
+
+| Service | État | Où |
+|---|---|---|
+| Meta Pixel (Facebook/Instagram) | ✅ Actif — ID `1619702942220389` | `index.html` `<head>` |
+| TikTok Pixel | ✅ Actif — ID `D9AMFCBC77UFCF7APCPG` | `index.html` `<head>` |
+| GA4 (Google Analytics) | ✅ Actif — ID de mesure `G-3J3DELN4H8` | `index.html` `<head>` |
+| Google Ads (conversions pub) | ⏳ Pas encore configuré — optionnel, seulement si des pubs Google/YouTube sont lancées | Ajouter l'ID de conversion (`AW-XXXXXXXXX`) dans `index.html` `<head>`, à côté du tag GA4 |
+
+Le suivi des clics de conversion (pré-save, Bandcamp) est déjà branché dans `script.js` via
+l'attribut `data-pixel-event` sur les liens concernés — il envoie l'événement à chaque pixel
+réellement présent (Meta actif dès maintenant; Google/TikTok s'activeront automatiquement dès
+que leurs scripts seront ajoutés, sans autre changement de code).
+
 ## Déploiement GitHub Pages
 
 ```bash
