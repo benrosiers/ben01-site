@@ -50,18 +50,18 @@
   updateHeader();
 })();
 
-/* ---- Suivi des clics de conversion (pré-save, Bandcamp, plateformes musicales) ----
+/* ---- Suivi des clics de conversion (pré-save, plateformes musicales) ----
    Un seul gestionnaire de clic centralise l'envoi des événements vers les pixels
    réellement présents sur la page (Meta fbq, GA4 gtag, TikTok ttq). Chaque appel est
    protégé par typeof : rien ne casse si un pixel n'est pas (encore) chargé.
 
-   - [data-pixel-event] : événement historique simple (ex. PreSave, Bandcamp),
+   - [data-pixel-event] : événement historique simple (ex. PreSave),
      envoyé tel quel à chaque pixel pour compatibilité avec le suivi existant.
    - [data-music-platform] (+ [data-tracking-location]) : clic vers une plateforme
      d'écoute musicale réelle. Envoie l'événement MusicPlatformClick / music_platform_click
      / ClickButton avec la plateforme, l'URL de destination et l'emplacement sur la page.
 
-   Un lien peut porter les deux attributs à la fois (ex. Bandcamp) : les deux événements
+   Un lien peut porter les deux attributs à la fois : les deux événements
    sont alors envoyés. */
 (function () {
   function sendLegacyPixelEvent(eventName) {
