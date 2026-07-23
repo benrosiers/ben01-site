@@ -67,7 +67,6 @@ Cherche et remplace dans `index.html` :
 | Lien | URL |
 |------|-----|
 | HyperFollow / pre-save | https://distrokid.com/hyperfollow/ben01/nons-cheap |
-| Bandcamp | https://ben01.bandcamp.com/album/n-ons-cheap |
 | GitHub Pages | https://benrosiers.github.io/ben01-site/ |
 | Site officiel (à venir) | https://ben01.ca |
 
@@ -82,10 +81,84 @@ Cherche et remplace dans `index.html` :
 | GA4 (Google Analytics) | ✅ Actif — ID de mesure `G-3J3DELN4H8` | `index.html` `<head>` |
 | Google Ads (conversions pub) | ⏳ Pas encore configuré — optionnel, seulement si des pubs Google/YouTube sont lancées | Ajouter l'ID de conversion (`AW-XXXXXXXXX`) dans `index.html` `<head>`, à côté du tag GA4 |
 
-Le suivi des clics de conversion (pré-save, Bandcamp) est déjà branché dans `script.js` via
+Le suivi des clics de conversion (pré-save) est déjà branché dans `script.js` via
 l'attribut `data-pixel-event` sur les liens concernés — il envoie l'événement à chaque pixel
 réellement présent (Meta actif dès maintenant; Google/TikTok s'activeront automatiquement dès
 que leurs scripts seront ajoutés, sans autre changement de code).
+
+### Suivi des conversions musicales
+
+Objectif : distinguer la visite du site, le clic vers une plateforme d'écoute et la
+plateforme réellement choisie, pour mesurer le tunnel Pub Meta → visite ben01.ca → clic
+plateforme.
+
+**Pixel Meta actif :** `1619702942220389` (inchangé, un seul chargement dans `index.html` `<head>`).
+
+**Événements envoyés :**
+
+| Événement | Déclencheur | Où |
+|---|---|---|
+| `PageView` (Meta), page view GA4 automatique | Chargement de la page | `index.html` `<head>`, automatique |
+| `MusicPlatformClick` (Meta `trackCustom`), `music_platform_click` (GA4 `gtag`), `ClickButton` (TikTok `ttq.track`) | Clic sur un lien de plateforme musicale réelle (`[data-music-platform]`) | `script.js`, un seul gestionnaire centralisé |
+| `PreSave` (événement historique `trackCustom`/`gtag`/`ttq.track`) | Clic sur le lien `[data-pixel-event="PreSave"]` existant, conservé pour compatibilité | `script.js` |
+
+**Paramètres envoyés avec `MusicPlatformClick` / `music_platform_click` :**
+
+- `platform` — nom de la plateforme cliquée (ex. `Spotify`, `Apple Music`)
+- `destination_url` — URL de destination du lien cliqué (URL inchangée)
+- `location` — emplacement du lien sur la page (ex. `hero`, `streaming-grid`)
+
+**Plateformes actuellement détectées sur le site (liens réels avec `href`) :**
+
+Aucune pour le moment — Spotify, Apple Music et YouTube Music n'ont pas encore de lien réel
+sur le site (simples espaces réservés « à venir »). Le mécanisme `data-music-platform` /
+`data-tracking-location` / `MusicPlatformClick` est en place et fonctionnel dans
+`script.js`, prêt à s'activer dès qu'un vrai lien sera ajouté (voir ci-dessous).
+
+Spotify, Apple Music et YouTube Music sont affichés en « à venir » dans le HTML actuel
+(pas de `href`, ce sont des `<div>`/`<span>` désactivés) — ils ne reçoivent donc pas encore
+d'attributs `data-music-platform`. Dès qu'un vrai lien `<a href="...">` sera ajouté pour une
+de ces plateformes, ajouter `data-music-platform="NomDeLaPlateforme"` et
+`data-tracking-location="..."` sur le lien : le gestionnaire centralisé dans `script.js` le
+prendra en charge automatiquement, sans autre modification de code.
+
+Le lien HyperFollow / pré-save (`data-pixel-event="PreSave"`) reste un événement `PreSave`
+simple : c'est une page d'agrégation DistroKid, pas une plateforme d'écoute identifiable,
+donc il n'est pas transformé en `MusicPlatformClick`.
+
+**Test dans Meta Events Manager :**
+
+1. Ouvrir Meta Events Manager → le pixel `1619702942220389` → « Tester les événements ».
+2. Visiter `ben01.ca` (ou l'URL de test) dans un onglet avec l'ID de test actif.
+3. Vérifier qu'un événement `PageView` apparaît dans le flux en temps réel.
+4. Cliquer sur le lien HyperFollow / pré-sauvegarde et vérifier que l'événement `PreSave`
+   apparaît.
+5. Dès qu'un vrai lien de plateforme (Spotify, Apple Music, YouTube Music, etc.) est ajouté
+   avec `data-music-platform` / `data-tracking-location`, cliquer dessus et vérifier
+   qu'un événement personnalisé `MusicPlatformClick` apparaît, avec les paramètres
+   `platform`, `destination_url` et `location` visibles dans le détail de l'événement.
+
+**Test équivalent dans GA4 DebugView :**
+
+1. Activer le mode debug (extension "Google Analytics Debugger" ou paramètre d'URL
+   `?_dbg=1` selon la configuration du compte) et ouvrir GA4 → Admin → DebugView.
+2. Visiter le site et vérifier l'événement `page_view` automatique.
+3. Cliquer sur le lien HyperFollow / pré-sauvegarde et vérifier l'événement `PreSave`.
+4. Dès qu'un vrai lien de plateforme est ajouté, cliquer dessus et vérifier l'événement
+   `music_platform_click` avec les paramètres `platform`, `destination_url` et `location`.
+
+**Limites / non vérifiable localement :**
+
+- Il n'existe actuellement aucun lien de plateforme musicale réel sur le site, donc
+  `MusicPlatformClick` / `music_platform_click` / `ClickButton` ne peuvent pas être
+  déclenchés ni vérifiés tant qu'un vrai lien (Spotify, Apple Music, YouTube Music, etc.)
+  n'est pas ajouté.
+- L'envoi réel des événements aux serveurs Meta/GA4/TikTok ne peut être confirmé qu'en
+  ligne (Events Manager, GA4 DebugView, TikTok Events Manager) — un test local en ouvrant
+  `index.html` peut être bloqué par des bloqueurs de pub/traqueurs ou par CORS selon le
+  navigateur.
+- Le TikTok Pixel est actif sur toutes les pages, mais `ClickButton` n'a pas été testé
+  dans TikTok Events Manager dans le cadre de ce changement.
 
 ## Déploiement GitHub Pages
 

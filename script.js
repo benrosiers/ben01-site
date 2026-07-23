@@ -50,13 +50,21 @@
   updateHeader();
 })();
 
-/* ---- Suivi des clics de conversion (pré-save / Bandcamp) ----
-   Envoie un événement personnalisé à chaque pixel de suivi réellement présent sur la page.
-   Meta Pixel est actif (voir index.html <head>). Google Ads/GA4 (gtag) et TikTok Pixel (ttq)
-   ne sont pas encore configurés — voir README "Pixels de suivi" — ces appels ne font rien
-   tant que ces scripts ne sont pas ajoutés, ils ne cassent rien en attendant. */
+/* ---- Suivi des clics de conversion (pré-save, plateformes musicales) ----
+   Un seul gestionnaire de clic centralise l'envoi des événements vers les pixels
+   réellement présents sur la page (Meta fbq, GA4 gtag, TikTok ttq). Chaque appel est
+   protégé par typeof : rien ne casse si un pixel n'est pas (encore) chargé.
+
+   - [data-pixel-event] : événement historique simple (ex. PreSave),
+     envoyé tel quel à chaque pixel pour compatibilité avec le suivi existant.
+   - [data-music-platform] (+ [data-tracking-location]) : clic vers une plateforme
+     d'écoute musicale réelle. Envoie l'événement MusicPlatformClick / music_platform_click
+     / ClickButton avec la plateforme, l'URL de destination et l'emplacement sur la page.
+
+   Un lien peut porter les deux attributs à la fois : les deux événements
+   sont alors envoyés. */
 (function () {
-  function trackConversion(eventName) {
+  function sendLegacyPixelEvent(eventName) {
     if (typeof window.fbq === 'function') {
       window.fbq('trackCustom', eventName);
     }
@@ -68,9 +76,42 @@
     }
   }
 
-  document.querySelectorAll('[data-pixel-event]').forEach(function (link) {
+  function sendMusicPlatformClick(platform, destinationUrl, location) {
+    if (typeof window.fbq === 'function') {
+      window.fbq('trackCustom', 'MusicPlatformClick', {
+        platform: platform,
+        destination_url: destinationUrl,
+        location: location
+      });
+    }
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'music_platform_click', {
+        platform: platform,
+        destination_url: destinationUrl,
+        location: location
+      });
+    }
+    if (typeof window.ttq !== 'undefined' && typeof window.ttq.track === 'function') {
+      window.ttq.track('ClickButton', {
+        content_name: platform,
+        content_type: 'music_platform',
+        destination_url: destinationUrl
+      });
+    }
+  }
+
+  document.querySelectorAll('[data-pixel-event], [data-music-platform]').forEach(function (link) {
     link.addEventListener('click', function () {
-      trackConversion(link.getAttribute('data-pixel-event'));
+      var platform = link.getAttribute('data-music-platform');
+      if (platform) {
+        var location = link.getAttribute('data-tracking-location') || '';
+        sendMusicPlatformClick(platform, link.href, location);
+      }
+
+      var legacyEvent = link.getAttribute('data-pixel-event');
+      if (legacyEvent) {
+        sendLegacyPixelEvent(legacyEvent);
+      }
     });
   });
 })();
