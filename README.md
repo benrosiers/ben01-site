@@ -110,17 +110,16 @@ plateforme.
 
 **Plateformes actuellement détectées sur le site (liens réels avec `href`) :**
 
-Aucune pour le moment — Spotify, Apple Music et YouTube Music n'ont pas encore de lien réel
-sur le site (simples espaces réservés « à venir »). Le mécanisme `data-music-platform` /
-`data-tracking-location` / `MusicPlatformClick` est en place et fonctionnel dans
-`script.js`, prêt à s'activer dès qu'un vrai lien sera ajouté (voir ci-dessous).
+| Plateforme | Emplacements | `data-tracking-location` |
+|---|---|---|
+| Spotify | Carte streaming, lien réseaux sociaux, 10 titres de la tracklist | `streaming-grid`, `reseaux-sociaux`, `tracklist` |
 
-Spotify, Apple Music et YouTube Music sont affichés en « à venir » dans le HTML actuel
-(pas de `href`, ce sont des `<div>`/`<span>` désactivés) — ils ne reçoivent donc pas encore
-d'attributs `data-music-platform`. Dès qu'un vrai lien `<a href="...">` sera ajouté pour une
-de ces plateformes, ajouter `data-music-platform="NomDeLaPlateforme"` et
-`data-tracking-location="..."` sur le lien : le gestionnaire centralisé dans `script.js` le
-prendra en charge automatiquement, sans autre modification de code.
+Apple Music et YouTube Music n'ont pas encore de lien réel sur le site (simples espaces
+réservés « à venir », `<div>`/`<span>` désactivés sans `href`). Dès qu'un vrai lien
+`<a href="...">` sera ajouté pour l'une de ces plateformes, ajouter
+`data-music-platform="NomDeLaPlateforme"` et `data-tracking-location="..."` sur le lien : le
+gestionnaire centralisé dans `script.js` le prendra en charge automatiquement, sans autre
+modification de code.
 
 Le lien HyperFollow / pré-save (`data-pixel-event="PreSave"`) reste un événement `PreSave`
 simple : c'est une page d'agrégation DistroKid, pas une plateforme d'écoute identifiable,
@@ -133,10 +132,12 @@ donc il n'est pas transformé en `MusicPlatformClick`.
 3. Vérifier qu'un événement `PageView` apparaît dans le flux en temps réel.
 4. Cliquer sur le lien HyperFollow / pré-sauvegarde et vérifier que l'événement `PreSave`
    apparaît.
-5. Dès qu'un vrai lien de plateforme (Spotify, Apple Music, YouTube Music, etc.) est ajouté
-   avec `data-music-platform` / `data-tracking-location`, cliquer dessus et vérifier
-   qu'un événement personnalisé `MusicPlatformClick` apparaît, avec les paramètres
-   `platform`, `destination_url` et `location` visibles dans le détail de l'événement.
+5. Cliquer sur un lien Spotify (carte streaming, réseaux sociaux ou un titre de la
+   tracklist) et vérifier qu'un événement personnalisé `MusicPlatformClick` apparaît, avec
+   les paramètres `platform`, `destination_url` et `location` visibles dans le détail de
+   l'événement.
+6. Dès qu'un vrai lien Apple Music ou YouTube Music est ajouté avec `data-music-platform` /
+   `data-tracking-location`, refaire le même test pour cette plateforme.
 
 **Test équivalent dans GA4 DebugView :**
 
@@ -144,15 +145,16 @@ donc il n'est pas transformé en `MusicPlatformClick`.
    `?_dbg=1` selon la configuration du compte) et ouvrir GA4 → Admin → DebugView.
 2. Visiter le site et vérifier l'événement `page_view` automatique.
 3. Cliquer sur le lien HyperFollow / pré-sauvegarde et vérifier l'événement `PreSave`.
-4. Dès qu'un vrai lien de plateforme est ajouté, cliquer dessus et vérifier l'événement
-   `music_platform_click` avec les paramètres `platform`, `destination_url` et `location`.
+4. Cliquer sur un lien Spotify et vérifier l'événement `music_platform_click` avec les
+   paramètres `platform`, `destination_url` et `location`.
+5. Dès qu'un vrai lien Apple Music ou YouTube Music est ajouté, refaire le même test pour
+   cette plateforme.
 
 **Limites / non vérifiable localement :**
 
-- Il n'existe actuellement aucun lien de plateforme musicale réel sur le site, donc
+- Apple Music et YouTube Music n'ont pas encore de lien réel sur le site, donc
   `MusicPlatformClick` / `music_platform_click` / `ClickButton` ne peuvent pas être
-  déclenchés ni vérifiés tant qu'un vrai lien (Spotify, Apple Music, YouTube Music, etc.)
-  n'est pas ajouté.
+  déclenchés ni vérifiés pour ces plateformes tant qu'un vrai lien n'est pas ajouté.
 - L'envoi réel des événements aux serveurs Meta/GA4/TikTok ne peut être confirmé qu'en
   ligne (Events Manager, GA4 DebugView, TikTok Events Manager) — un test local en ouvrant
   `index.html` peut être bloqué par des bloqueurs de pub/traqueurs ou par CORS selon le
